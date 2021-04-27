@@ -1,1 +1,1 @@
-# boatplans
+# Boatplans project
