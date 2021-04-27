@@ -1,0 +1,4 @@
+[tool.black]
+line-length = 95
+skip-string-normalization = 1
+exclude = '/(\.git|migrations)/'
