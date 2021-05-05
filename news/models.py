@@ -2,7 +2,7 @@
 
 from django.db import models
 from django.utils.timezone import now
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from sorl.thumbnail import ImageField
 
 from designs.models import Design
