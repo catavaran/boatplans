@@ -22,6 +22,7 @@ INSTALLED_APPS = (
     # 3rd party apps
     'corsheaders',
     'pagedown',
+    'rest_framework',
     # local apps
     'designs',
     'news',
@@ -58,3 +59,15 @@ TEMPLATES = (
 )
 
 WSGI_APPLICATION = 'boatplans.wsgi.application'
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
+        'djangorestframework_camel_case.render.CamelCaseBrowsableAPIRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'djangorestframework_camel_case.parser.CamelCaseFormParser',
+        'djangorestframework_camel_case.parser.CamelCaseMultiPartParser',
+        'djangorestframework_camel_case.parser.CamelCaseJSONParser',
+    ),
+}

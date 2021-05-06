@@ -1,18 +1,23 @@
-from django.http import JsonResponse
+"""API views for designs app."""
 
+from django.conf import settings
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from designs.api.serializers import PropulsionWithLengthsSerializer
 from designs.models import Propulsion
 
 
-def site_info(request):
-    site_name = 'Boatplans.cc'
-    # slug label
-    propulsions = [
-        {'slug': propulsion.slug, 'longName': propulsion.long_name, 'lengths': []}
-        for propulsion in Propulsion.objects.all()
-    ]
-    return JsonResponse(
-        {
-            'siteName': site_name,
-            'propulsions': propulsions,
-        }
-    )
+class SiteInfoView(APIView):
+
+    def get(self, *args, **kwargs):
+        propulsions = PropulsionWithLengthsSerializer(
+            Propulsion.objects.all(),
+            many=True,
+        ).data
+        return Response(
+            {
+                'site_name': settings.SITE_NAME,
+                'propulsions': propulsions,
+            }
+        )
