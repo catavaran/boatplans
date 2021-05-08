@@ -6,10 +6,10 @@ from boatplans.settings.components import config
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 MEDIA_ROOT = config('MEDIA_ROOT')
-MEDIA_URL = '/media/'
+MEDIA_URL = config('MEDIA_URL', '/media/')
 
 STATIC_ROOT = config('STATIC_ROOT')
-STATIC_URL = '/static/'
+STATIC_URL = config('STATIC_URL', '/static/')
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',

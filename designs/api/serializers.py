@@ -51,4 +51,4 @@ class DesignCardSerializer(serializers.ModelSerializer):
     loa = SerializerSizeField()
     class Meta:
         model = Design
-        fields = ['slug', 'name', 'designer', 'tiny_description', 'loa']
+        fields = ['slug', 'name', 'designer', 'tiny_description', 'loa', 'image']
