@@ -1,16 +1,19 @@
 """API views for designs app."""
 
 from django.conf import settings
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from designs.api.filters import DesignFilterSet
 from designs.api.serializers import (
     DesignCardSerializer,
+    DesignListSerializer,
     PropulsionSerializer,
     PropulsionWithLengthsSerializer,
 )
-from designs.models import Propulsion
-from designs.selectors import get_recent_designs
+from designs.models import Design, Propulsion
+from designs.selectors import get_enabled_designs, get_recent_designs
 
 
 class SiteInfoView(APIView):
@@ -40,3 +43,9 @@ class RecentDesignsView(APIView):
             for propulsion in Propulsion.objects.all()
         ]
         return Response(recent_designs)
+
+
+class DesignListView(ListAPIView):
+    queryset = get_enabled_designs()
+    serializer_class = DesignListSerializer
+    filterset_class = DesignFilterSet

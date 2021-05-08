@@ -78,3 +78,33 @@ def humanize_imperial_size(size):
     if inches:
         return '{0} {1}"'.format(size, inches).strip()
     return size
+
+
+def humanize_metric_area(area):
+    """
+    Convert area (sq.meters) to human readable string in metric system.
+
+    >>> humanize_metric_area(None)
+    >>> humanize_metric_area(11.5)
+    '11.5 m²'
+    >>> humanize_metric_area(11.0)
+    '11 m²'
+    """
+    if not area:
+        return None
+    sqm = '{0:.1f}'.format(area).rstrip('0').rstrip('.')
+    return str(_('{area} m²')).format(area=sqm)
+
+
+def humanize_imperial_area(area):
+    """
+    Convert area (sq.meters) to human readable string in imperial system.
+
+    >>> humanize_imperial_area(None)
+    >>> humanize_imperial_area(11.5)
+    '124 sq. ft.'
+    """
+    if not area:
+        return None
+    sqf = round(float(area) / 0.0929)
+    return str(_('{area} sq. ft.')).format(area=sqf)

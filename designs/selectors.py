@@ -6,7 +6,9 @@ from designs.models import Design
 
 
 def get_enabled_designs(**filters):
-    return Design.objects.filter(designer__enabled=True, enabled=True, **filters)
+    return Design.objects.select_related('designer').filter(
+        designer__enabled=True, enabled=True, **filters
+    )
 
 
 def get_length_intervals():
