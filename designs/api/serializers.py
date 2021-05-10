@@ -2,6 +2,7 @@
 
 from django.conf import settings
 from rest_framework import serializers
+from sorl.thumbnail import get_thumbnail
 
 from designs.formats import (
     humanize_imperial_area,
@@ -12,6 +13,40 @@ from designs.formats import (
 )
 from designs.models import Design, Designer, Propulsion
 from designs.selectors import get_lengths_for_propulsion
+
+
+class SerializerThumbnailImageField(serializers.Field):
+    def __init__(self, *args, **kwargs):
+        self.size = kwargs.pop('size')
+        super().__init__(*args, *kwargs)
+
+    def to_representation(self, image):
+        double_size = (self.size[0] * 2, self.size[1] * 2)
+        default_image = self.get_thumbnail(image, self.size)
+        double_image = self.get_thumbnail(image, double_size)
+        webp_image = self.get_thumbnail(image, self.size, format='WEBP')
+        webp_double_image = self.get_thumbnail(image, double_size, format='WEBP')
+
+        return {
+            'original': image.url,
+            'src': default_image.url,
+            'srcset': self.build_srcset(default_image, double_image),
+            'width': default_image.width,
+            'height': default_image.height,
+            'sources': [
+                {
+                    'srcset': self.build_srcset(webp_image, webp_double_image),
+                    'type': 'image/webp',
+                }
+            ],
+        }
+
+    def get_thumbnail(self, image, size, format=None):
+        kwargs = {'format': format} if format else {}
+        return get_thumbnail(image, '{0}x{1}'.format(*size), **kwargs)
+
+    def build_srcset(self, image, image_2x):
+        return '{0}, {1} 2x'.format(image.url, image_2x.url)
 
 
 class SerializerSizeField(serializers.Field):
@@ -63,6 +98,7 @@ class PropulsionWithLengthsSerializer(serializers.ModelSerializer):
 
 class DesignCardSerializer(serializers.ModelSerializer):
     absolute_url = serializers.CharField(source='get_absolute_url')
+    image = SerializerThumbnailImageField(size=(120, 120))
     designer = DesignerLightSerializer()
     loa = SerializerSizeField()
 
@@ -81,6 +117,7 @@ class DesignCardSerializer(serializers.ModelSerializer):
 
 class DesignListSerializer(serializers.ModelSerializer):
     absolute_url = serializers.CharField(source='get_absolute_url')
+    image = SerializerThumbnailImageField(size=(64, 64))
     designer = DesignerLightSerializer()
     loa = SerializerSizeField()
     beam = SerializerSizeField()

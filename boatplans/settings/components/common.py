@@ -21,6 +21,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     # 3rd party apps
     'corsheaders',
+    'sorl.thumbnail',
     'pagedown',
     'rest_framework',
     'django_filters',
