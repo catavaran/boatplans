@@ -116,6 +116,9 @@ class Designer(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        """Designer's url."""
+        return '/{0}/'.format(self.slug)
 
 class Tag(models.Model):
     """Tag for design."""

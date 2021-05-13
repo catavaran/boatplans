@@ -1,13 +1,14 @@
 """API views for designs app."""
 
 from django.conf import settings
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from designs.api.filters import DesignFilterSet
 from designs.api.serializers import (
     DesignCardSerializer,
+    DesignDetailSerializer,
     DesignListSerializer,
     PropulsionSerializer,
     PropulsionWithLengthsSerializer,
@@ -49,3 +50,9 @@ class DesignListView(ListAPIView):
     queryset = get_enabled_designs()
     serializer_class = DesignListSerializer
     filterset_class = DesignFilterSet
+
+
+class DesignDetailView(RetrieveAPIView):
+    lookup_field = 'slug'
+    queryset = get_enabled_designs()
+    serializer_class = DesignDetailSerializer

@@ -7,4 +7,5 @@ urlpatterns = [
     path('site-info/', views.SiteInfoView.as_view()),
     path('designs/recent/', views.RecentDesignsView.as_view()),
     path('designs/', views.DesignListView.as_view()),
+    path('designs/<designer>/<slug>/', views.DesignDetailView.as_view()),
 ]

@@ -11,8 +11,8 @@ from designs.formats import (
     humanize_metric_size,
     humanize_size_range,
 )
-from designs.models import Design, Designer, Propulsion
-from designs.selectors import get_lengths_for_propulsion
+from designs.models import Design, Designer, Image, Propulsion
+from designs.selectors import get_length_interval_for_design, get_lengths_for_propulsion
 
 
 class SerializerThumbnailImageField(serializers.Field):
@@ -66,9 +66,11 @@ class SerializerAreaField(serializers.Field):
 
 
 class DesignerLightSerializer(serializers.ModelSerializer):
+    absolute_url = serializers.CharField(source='get_absolute_url')
+
     class Meta:
         model = Designer
-        fields = ['slug', 'name']
+        fields = ['slug', 'name', 'absolute_url']
 
 
 class PropulsionSerializer(serializers.ModelSerializer):
@@ -94,6 +96,14 @@ class PropulsionWithLengthsSerializer(serializers.ModelSerializer):
             }
             for (size_from, size_to) in get_lengths_for_propulsion(propulsion)
         ]
+
+
+class DesignImageSerializer(serializers.ModelSerializer):
+    image = SerializerThumbnailImageField(size=(360, 360))
+
+    class Meta:
+        model = Image
+        fields = ['image', 'title', 'image_url']
 
 
 class DesignCardSerializer(serializers.ModelSerializer):
@@ -138,3 +148,40 @@ class DesignListSerializer(serializers.ModelSerializer):
             'sail_area',
             'horse_power',
         ]
+
+
+class DesignDetailSerializer(serializers.ModelSerializer):
+    image = SerializerThumbnailImageField(size=(500, 500))
+    propulsion = PropulsionSerializer()
+    length_interval = serializers.SerializerMethodField()
+    designer = DesignerLightSerializer()
+    photos = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Design
+        fields = [
+            'slug',
+            'propulsion',
+            'length_interval',
+            'image',
+            'name',
+            'url',
+            'designer',
+            'tiny_description',
+            'description',
+            'photos',
+        ]
+
+    # FIXME Code duplication with PropulsionWithLengthsSerializer.get_lengths
+    def get_length_interval(self, design):
+        slug_format = '{0}-{1}' if settings.IS_METRIC_SYSTEM else '{0}ft-{1}ft'
+        unit = 'м' if settings.IS_METRIC_SYSTEM else 'ft'
+        size_from, size_to = get_length_interval_for_design(design)
+        return {
+            'slug': slug_format.format(size_from, size_to),
+            'label': humanize_size_range(size_from, size_to, unit),
+        }
+
+    def get_photos(self, design):
+        photos = [image for image in design.images.all() if image.image_type == 'photo']
+        return DesignImageSerializer(photos, many=True).data
