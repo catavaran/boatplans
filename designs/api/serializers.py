@@ -98,7 +98,15 @@ class PropulsionWithLengthsSerializer(serializers.ModelSerializer):
         ]
 
 
-class DesignImageSerializer(serializers.ModelSerializer):
+class DesignDrawingSerializer(serializers.ModelSerializer):
+    image = SerializerThumbnailImageField(size=(200, 200))
+
+    class Meta:
+        model = Image
+        fields = ['image', 'title', 'image_url']
+
+
+class DesignPhotoSerializer(serializers.ModelSerializer):
     image = SerializerThumbnailImageField(size=(360, 360))
 
     class Meta:
@@ -155,6 +163,7 @@ class DesignDetailSerializer(serializers.ModelSerializer):
     propulsion = PropulsionSerializer()
     length_interval = serializers.SerializerMethodField()
     designer = DesignerLightSerializer()
+    drawings = serializers.SerializerMethodField()
     photos = serializers.SerializerMethodField()
 
     class Meta:
@@ -169,6 +178,7 @@ class DesignDetailSerializer(serializers.ModelSerializer):
             'designer',
             'tiny_description',
             'description',
+            'drawings',
             'photos',
         ]
 
@@ -182,6 +192,10 @@ class DesignDetailSerializer(serializers.ModelSerializer):
             'label': humanize_size_range(size_from, size_to, unit),
         }
 
+    def get_drawings(self, design):
+        drawings = [image for image in design.images.all() if image.image_type == 'drawing']
+        return DesignDrawingSerializer(drawings, many=True).data
+
     def get_photos(self, design):
         photos = [image for image in design.images.all() if image.image_type == 'photo']
-        return DesignImageSerializer(photos, many=True).data
+        return DesignPhotoSerializer(photos, many=True).data
